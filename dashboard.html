@@ -1,0 +1,223 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link rel="stylesheet" href="dash_style.css">
+<!-- [if lt IE 9 ]><![endif]-->
+<!-- [if IE 9 ]><![endif]-->
+</head>
+<body>
+	<div id="app" class="banner-container">
+		<div class="banner-wrapper">
+			<div class="logo">
+				<img src="./images/logo_gm119.png" alt="경남소방로고">
+			</div>
+			<template v-if="isActive">
+				<div class="contents alarm" :class="bannerMsg.alignment">
+					
+					<div class="fire-alarm">
+						<div class="alarm-title">
+							<img class="alimg" src="./images/fire_r.gif" alt="alarm">
+							<span class="altxt">{{bannerMsg.title}}</span>
+						</div>
+						<div class="alarm-content alram">{{bannerMsg.content}}</div>
+					</div>
+				</div>
+			</template>
+			<template v-else>
+				<div class="contents">
+					<div id="preview"></div>
+				</div>
+			</template>
+			<div class="date">
+				<div class="date2">{{datestring.h | checkNum}}:{{datestring.m | checkNum}}:{{datestring.s | checkNum}}</div>
+				<div class="date1">{{datestring.year}}년{{datestring.month | checkNum}}월{{datestring.day | checkNum}}일 {{datestring.days | convertDay}}</div>
+			</div>
+			<!-- <div class="weather">
+				<div class="weather-state">
+					<div class="weather-img">
+						<img :src="weather.icon" :alt="weather.text">
+					</div>
+					<div class="temp">
+						<div class="temp-num">{{weather.temp}}</div>
+						<img class="tmark" src="./images/tempmark.png">
+					</div>
+				</div>
+				<div class="weather-report">
+					<div class="spec-report">{{weather.specreport}}</div>
+				</div>
+			</div> -->
+		</div>
+	</div>
+	<script src="./js/jquery-3.2.1.min.js"></script>
+	<script src="./js/vue.min.js"></script>
+	<script src="./js/config.js"></script>
+	<script>
+		
+		//Vue 객체생성 (날짜 시간 데이터 생성)
+		var vm_date = new Vue({
+			el: '#app',
+			data: {
+				datestring: {
+					year:'',
+					month:'',
+					day:'',
+					days:'',
+					h:'',
+					m:'',
+					s:''
+				},
+				bannerMsg: {
+					title: "",
+					content: "",
+					alignment: "",
+					contentHidden: Boolean,
+					titleSize: Number,
+					contentSize: Number,
+					titleColor: '',
+					contentColor: '',
+				},
+				weather: {
+					temp:'',
+					icon:'',
+					text:'',
+					specreport: '기상특보현황'
+				},
+				isActive: false,
+			},
+			filters: {
+			//20180905 수정내용 시작
+				convertDay: function(value) {
+					var result = "";
+					switch(value) {
+						case 1:
+							result = "월요일";
+							break;
+						case 2:
+							result = "화요일";
+							break;
+						case 3:
+							result = "수요일";
+							break;
+						case 4:
+							result = "목요일";
+							break;
+						case 5:
+							result = "금요일";
+							break;
+						case 6:
+							result = "토요일";
+							break;
+						default:
+							result = "일요일";
+							break;
+					}
+					return result;
+				},
+				//20180905 수정내용 끝
+				checkNum: function(value) {
+					var result = value;
+					if (value < 10) {
+						var result = "0" + value;
+					}
+					return result;
+				},
+			}
+		})
+		$(document).ready(function(){
+			getWeatherInfo();
+			getClockData();
+			getBannerMsg();
+			setClock(); //시간 갱신
+			BannerMsg();
+			WeatherInfo();
+			var editText = localStorage.getItem("editText");
+			$('#preview').html(editText);
+
+		})
+
+		 //전광판 시계 (date 값 받아오기)
+		function getClockData(){
+ 			var date = new Date();
+			vm_date.datestring.year = date.getFullYear();
+			vm_date.datestring.month = date.getMonth() + 1;
+			vm_date.datestring.day = date.getDate();
+			vm_date.datestring.days = date.getDay();
+			vm_date.datestring.h = date.getHours();
+			vm_date.datestring.m = date.getMinutes();
+			vm_date.datestring.s = date.getSeconds();
+		}
+		//시간 갱신
+ 		function setClock() {
+ 			setInterval("getClockData()", 500);
+		}
+ 		function BannerMsg() {
+ 			setInterval("getBannerMsg()", 3000);
+		}
+ 		function WeatherInfo() {
+ 			setInterval("getWeatherInfo()", 60000);
+		}
+
+		//두자리수 변환
+		function checkNum(num) {
+			var result = num;
+			if(num<10){
+				var result = "0" + num;
+			}
+			return result;
+		}
+		// 메세지 데이타 가져오기
+		function getBannerMsg() {
+			var $url = BASE_ROOT + "/dashboard/message/json";
+			
+			$.ajax({
+				url: $url,
+				type: 'get',
+				success: function (data) {
+					var objBann = data;
+					vm_date.bannerMsg.title = objBann.Title;
+					vm_date.bannerMsg.content = objBann.Message;
+					vm_date.bannerMsg.alignment = objBann.Align.toLowerCase();
+					if(objBann.Status == 'Normal'){
+						vm_date.isActive = false;
+						$('#preview').html(data.HtmlText);
+					}else {
+						vm_date.isActive = true;
+						$('#preview').html();
+					}
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			})
+		}
+		// 기상정보 데이타 가져오기
+		function getWeatherInfo() {
+			var $url = BASE_ROOT_W + "/gn119/current/weather";
+			$.ajax({
+				url: $url,
+				type: 'get',
+				dataType: 'xml',
+				success: function (xml) {
+					var xmldata = $(xml).find("Node");
+					var xmlitems = xmldata.find('Items');
+					var xmlitem = xmlitems.find('Item');
+					vm_date.weather.temp = $(xmlitem[3]).attr('value');
+					vm_date.weather.icon = "./images/weather/weather0"+$(xmlitem[4]).attr('value')+"_1920.png";
+					vm_date.weather.text = $(xmlitem[5]).attr('value');
+					vm_date.weather.specreport = $(xmlitem[7]).attr('value');	
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			})
+		}
+
+
+
+
+	</script>
+
+</body>
+</html>

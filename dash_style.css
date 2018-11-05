@@ -1,0 +1,293 @@
+/* @charset "UTF-8"; */
+/* fonts import */
+
+@font-face {
+  font-family: 'BebasNeue_0';
+  src: url('./fonts/BebasNeue_0.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'HelveticaNeueLTStd-MdCn';
+  src: url('./fonts/HelveticaNeueLTStd-MdCn.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'HelveticaNeueLTStd-BdOu';
+  src: url('./fonts/HelveticaNeueLTStd-BdOu.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NotoSansCJKkr';
+  src: url('./fonts/NotoSansCJKkr-Regular.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NotoSansCJKkr-Bold';
+  src: url('./fonts/NotoSansCJKkr-Bold.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/*reset 정의*/
+/* reset */
+html { overflow:hidden; margin:0; padding:0; }
+html, body { height:100%; }
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,
+h5,h6,pre,code,form,fieldset,legend,textarea,
+p,
+blockquote,
+th,
+td,
+input,
+select,
+button,
+a {
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  font-family: 'NotoSansCJKkr';
+  /* font-family: 'HelveticaNeueLTStd-MdCn',
+  "Helvetica Neue LT Std"; */
+}
+
+fieldset,img											{ border:0; }
+
+dl,ul,ol,menu,li										{ list-style:none; }
+blockquote, q											{ quotes:none; }
+blockquote:before, blockquote:after,q:before, q:after	{ content:''; content:none; }
+input,select,textarea,button							{ vertical-align:middle; }
+button													{ border:0 none; background-color:transparent; cursor:pointer; }
+body,th,td,input,select,textarea,button					{ line-height:1.5; color:#454545; } /* color값은 디자인가이드에 맞게사용 */
+a														{ color:#333; text-decoration:none; }
+a:active, a:hover, a:visited							{ text-decoration:none; }
+address,caption,cite,code,dfn,em,var					{ font-style:normal; font-weight:normal; }
+img { width:100%; }
+
+.clear { clear:both; }
+
+body {
+
+   background-color: #545454;
+   color: #f9f9f9;
+
+}
+::-webkit-scrollbar {
+  display:none;
+}
+
+#app {
+  width: 3520px;
+  /* height: 540px; */
+  height: 360px;
+  background: url('./images/bgimg.jpg') top left no-repeat;
+}
+
+.banner-container {
+  background-color: #000000;
+}
+.banner-wrapper {
+  display: flex;
+  width:100%;
+  height: 100%;
+  align-items: center;
+  position: relative;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.banner-wrapper > div {
+  /* float:left; */
+}
+.banner-wrapper .logo {
+  width: 20%;
+  padding: 0 20px;
+  margin-left: 50px;
+  flex-grow: 0;
+}
+.banner-wrapper .logo img {
+  width:100%;
+}
+
+.banner-wrapper .date {
+  flex-grow:0;
+  width: 580px;
+  padding: 10px;
+  /* color: rgb(243, 243, 162); */
+  /* text-shadow: 0 0 10px rgb(253, 253, 75); */
+}
+
+.banner-wrapper .date .date1,
+.banner-wrapper .date .date2 {
+  font-family: 'HelveticaNeueLTStd-MdCn',
+  "Helvetica Neue LT Std",
+  'NotoSansCJKkr-Bold';
+  line-height: 1;
+  font-weight: 500;
+
+}
+
+.banner-wrapper .date .date1{
+  font-size: 4em;
+  padding-left: 15px;
+  line-height: 1.2;
+}
+
+.banner-wrapper .date .date2{
+  font-size: 12em;
+}
+
+.banner-wrapper .date.alarm {
+  color: rgb(255, 95, 95);
+}
+
+.banner-wrapper .contents{
+  flex-grow: 1;
+  width: 1850px;
+}
+
+.banner-wrapper .contents.left {
+  text-align: left;
+}
+
+.banner-wrapper .contents.center {
+  text-align: center;
+}
+
+.banner-wrapper .contents.right {
+  text-align: right;
+}
+
+
+.banner-wrapper .contents .fire-alarm {
+
+}
+
+.banner-wrapper .contents #preview > div:first-child {
+  line-height:1;
+}
+
+.banner-wrapper .contents .fire-alarm .alarm-title {
+  line-height: 1;
+  font-size: 12em;
+  display: inline-block;
+
+}
+.banner-wrapper .contents .fire-alarm .alarm-content {
+  font-size: 6em;
+  line-height: 1.4;
+  padding-top: 30px;
+}
+
+.banner-wrapper .contents .fire-alarm .alarm-content.hidden {
+  display: none;
+}
+
+
+.banner-wrapper .contents.alarm .fire-alarm .alarm-title {
+    font-family: 'NotoSansCJKkr-Bold';
+    background-color: #ff5f5f;
+    color:#f9f9f9;
+  line-height: 1;
+  font-size: 10em;
+  display: inline-block;
+  padding: 0 20px 10px 0;
+
+}
+
+.banner-wrapper .contents.alarm .fire-alarm .alarm-title img.alimg {
+    float:left;
+    width:120px;
+    margin:10px;
+}
+
+
+.banner-wrapper .contents.alarm .fire-alarm .alarm-title span.altxt {
+    float: right;
+    padding-top:10px;
+
+
+}
+.banner-wrapper .contents.alarm .fire-alarm .alarm-content {
+    color:#ff5f5f;
+  font-size: 6em;
+  line-height: 1.4
+}
+
+.banner-wrapper .weather {
+  flex-grow: 0;
+  position: relative;
+  width: 780px;
+  margin-right: 100px;
+  /* border-left:1px solid #ffffff; */
+  display: flex;
+  flex-direction: column;
+  /* flex: 0 1 auto; */
+}
+
+.banner-wrapper .weather > div {
+
+}
+
+.banner-wrapper .weather .title {
+  position: absolute;
+  padding-left: 30px;
+  border-left: 3px solid #ffffff;
+  font-size: 4em;
+  top: 20px;
+  left:30px;
+}
+
+.banner-wrapper .weather .weather-state > div {
+  float: right;
+}
+
+.banner-wrapper .weather .temp {
+  
+  width:320px;
+  position: relative;
+  padding-right: 30PX;
+  /* font-weight: bold; */
+}
+
+.banner-wrapper .weather .temp .temp-num {
+  font-family: 'HelveticaNeueLTStd-MdCn',
+  "Helvetica Neue LT Std";
+  font-size: 13em;
+  line-height: 1;
+  text-align: right;
+}
+
+.banner-wrapper .weather .temp img.tmark {
+  width: 35px;
+  position: absolute;
+  top:30px;
+  right: -10px;
+}
+
+.banner-wrapper .weather .weather-state {
+  width:100%;
+}
+
+.banner-wrapper .weather .weather-state .weather-img {
+  width: 400px;
+  /* margin-left: 5px; */
+}
+
+.banner-wrapper .weather .weather-report {
+  width:100%;
+  
+}
+.banner-wrapper .weather .weather-report > div {
+  padding: 20px 30px 0 0;
+  font-size: 6em;
+  text-align: right;
+}
+

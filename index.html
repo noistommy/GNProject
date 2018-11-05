@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+<!-- Include external CSS. -->
+<link type="text/css" href="./css/fontawesome-all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.css" rel="stylesheet">
+
+<!-- Include Editor style. -->
+<link type="text/css" href="./css/froala_editor.pkgd.min.css" rel="stylesheet">
+<link type="text/css" href="./css/froala_style.min.css" rel="stylesheet">
+<link type="text/css" href="./css/themes/dark.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="spectrum.css">
+<link rel="stylesheet" href="style.css">
+<!-- [if lt IE 9 ]><![endif]-->
+<!-- [if IE 9 ]><![endif]-->
+</head>
+<body>
+	
+	
+	<div class="header">
+		<div class="title">상황판 전자현수막 관리</div>	
+	</div>
+	<div id="app" class="banner-container">	
+		<div class="banner-wrapper">
+			<div class="logo">
+				<img src="./images/logo_gm119.png" alt="경남소방로고">
+			</div>
+			<div class="date">
+				<div class="date2">{{datestring.h | checkNum}}:{{datestring.m | checkNum}}:{{datestring.s | checkNum}}</div>
+				<div class="date1">{{datestring.year}}년{{datestring.month | checkNum}}월{{datestring.day | checkNum}}일 {{datestring.days | convertDay}}</div>
+			</div>
+			<div class="contents" :class="bannerMsg.alignment">
+				<div class="content-text">
+					<div id="preview" class="editedHtml fr-view">{{editedHtml}}</div>
+				</div>
+			</div>
+		</div>
+		<form method="POST">
+			<textarea name="editor"></textarea>
+		</form>
+		<div class="result">
+			<div class="message">
+				<div class="success"> 상황판 메세지가 업데이트 되었습니다. </div>
+				<div class="error"> 상황판 메세지가 업데이트가 실패했습니다. 다시 시도하세요. </div>
+			</div>
+			<button class="done" onClick="updateBannerMsg();">적용</button>
+		</div>
+	</div>		
+	</div>
+	<div class="clear"></div>
+	<div class="manual open">
+		<div class="title" onclick="toggleManual()">기능 설명 <span><i class="fa fa-caret-up"></i></span></div>
+		<div class="intro">
+			사용법: 변경을 원하는 글자를 마우스 드래그로 블록 지정 후 툴바에서 변경사항을 선택한다. 
+			미리보기로 변경내용 확인 후 적용버튼을 클릭 한다.
+		</div>
+		<div class="tools">
+			<div class="content">
+				<ul>
+					<li>
+						<span class="icon"><i class="fa fa-undo"></i></span>
+						<span>변경 되돌리기 (변경사항 발생 시 활성화 된다)</span>
+					</li>
+					<li>
+						<span class="icon"><i class="fa fa-redo"></i></span>
+						<span>변경 되돌리기 취소 (변경 되돌리기 발생 시 활성화 된다)</span>
+					</li>
+					<li>
+						<span class="icon"><i class="fa fa-bold"></i></span>
+						<span>굵은 글자</span>
+					</li>
+					<li>
+						<span class="icon"><i class="fa fa-text-height"></i></span>
+						<span>글자 크기 선택 (전자 현수막 크기 기준)</span>
+					</li>
+					<li>
+						<span class="icon"><i class="fa fa-tint"></i></span>
+						<span>글자 색 선택 </span>
+					</li>
+					<li>
+						<span class="icon"><i class="fa fa-align-left"></i></span>
+						<span class="icon"><i class="fa fa-align-center"></i></span>
+						<span class="icon"><i class="fa fa-align-right"></i></span>
+						<span>글자 정렬 선택 (왼쪽, 가운데, 오른쪽) </span>
+					</li>
+					<li>
+						<span class="icon"><i class="fa fa-outdent"></i></span>
+						<span>글자 내어쓰기</span>
+					</li>
+					<li>
+						<span class="icon"><i class="fa fa-indent"></i></span>
+						<span>글자 들여쓰기 </span>
+					</li>
+					<div class="clear"></div>
+				</ul>
+			</div>
+		</div>
+	</div>
+	
+
+	<script src="./js/jquery-3.2.1.min.js"></script>
+	<script src="./js/vue.min.js"></script>
+	<script src="./js/config.js"></script>
+	<script src="./js/spectrum.js"></script>
+	<script src="./js/spectrum.js"></script>
+	<script src="./colors.js"></script>
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/mode/xml/xml.min.js" type="text/javascript"></script> -->
+ 
+    <script src="./js/plugins/froala_editor.pkgd.min.js"></script>
+	<script src="./js/plugins/font_size.min.js"></script>
+    
+	<script>
+		var colorList=[];
+		 $(function() {
+			$.each(colors,function(i){
+				colorList.push(colors[i].hexString);
+			})
+			colorList.push('REMOVE');
+			$.FroalaEditor.DefineIcon('clear', {NAME: 'remove'});
+			$.FroalaEditor.RegisterCommand('clear', {
+			title: 'Clear HTML',
+			focus: false,
+			undo: true,
+			refreshAfterCallback: true,
+			callback: function () {
+					this.html.set('');
+					this.events.focus();
+				}
+			});
+			$('textarea').froalaEditor({
+				enter: $.FroalaEditor.ENTER_DIV,
+				tabSpaces: 4,
+				toolbarButtons: ['undo', 'redo' , '|', 'bold', 'fontSize','color','|','align', 'outdent', 'indent'],
+				theme: 'dark',
+				zIndex:2003,
+				colorsBackground: colorList,
+				colorsDefaultTab: 'text',
+				colorsStep: 16,
+				fontSize: ['36', '48', '60', '72', '84', '96', '120', '144', '156', '180'],
+				fontSizeDefaultSelection: '36',
+				fontSizeSelection: true,
+				colorsText: colorList,
+				heightMin: 200,
+     			heightMax: 600,
+			}).on('froalaEditor.contentChanged', function (e, editor) {
+				$('#preview').html(editor.html.get());
+			});
+			$('.fr-wrapper div a').css('background-color','#ffffff');
+			$('.fr-wrapper').css('background-color','#2f2f2f');
+
+			$('.fr-wrapper span').hide();
+		});
+			
+
+		//Vue 객체생성 (날짜 시간 데이터 생성)
+		var vm_date = new Vue({
+			el: '#app',
+			data: {
+				datestring: {
+					year:'',
+					month:'',
+					day:'',
+					days:'',
+					h:'',
+					m:'',
+					s:''
+				},
+				bannerMsg: {
+					title: '',
+					content: '',
+					alignment: '',
+					contentHidden: Boolean,
+					titleSize: Number,
+					contentSize: Number,
+					titleColor: '',
+					contentColor: '',
+				},
+				isActive: false,
+				editedHtml: String 
+			},
+			filters: {
+				convertDay: function(value) {
+					var result = "";
+					switch(value) {
+						case 1:
+							result = "월요일";
+							break;
+						case 2:
+							result = "화요일";
+							break;
+						case 3:
+							result = "수요일";
+							break;
+						case 4:
+							result = "목요일";
+							break;
+						case 5:
+							result = "금요일";
+							break;
+						case 6:
+							result = "토요일";
+							break;
+						default:
+							result = "일요일";
+							break;
+					}
+					return result;
+				},
+				checkNum: function(value) {
+					var result = value;
+					if (value < 10) {
+						var result = "0" + value;
+					}
+					return result;
+				},
+			},
+			methods: {
+				isSelected: function () {
+					$('.checkbox').removeClass('active');
+
+				},
+				onSubmit: function(){
+					var textarea = $('textarea').val();
+					this.editedHtml = textarea;
+				}
+			},
+		})
+
+		$(document).ready(function(){
+			console.log("ready");
+			getClockData(); //시간 초기화
+			setClock(); //시간 갱신
+			
+			getBannerMsg();
+			
+		});
+
+		 //전광판 시계 (date 값 받아오기)
+		function getClockData(){
+ 			var date = new Date();
+			vm_date.datestring.year = date.getFullYear();
+			vm_date.datestring.month = date.getMonth() + 1;
+			vm_date.datestring.day = date.getDate();
+			vm_date.datestring.days = date.getDay();
+			vm_date.datestring.h = date.getHours();
+			vm_date.datestring.m = date.getMinutes();
+			vm_date.datestring.s = date.getSeconds();
+		}
+		//시간 갱신
+ 		function setClock() {
+ 			setInterval("getClockData()", 500);
+		}
+ 		
+		//두자리수 변환
+		function checkNum(num) {
+			var result = num;
+			if(num<10){
+				var result = "0" + num;
+			}
+			return result;
+		}
+
+		// 메세지 데이타 가져오기
+		function getBannerMsg() {
+			var $url = BASE_ROOT + "/message/json";
+			$.ajax({
+				url: $url,
+				type: 'get',
+				success: function (data) {
+					$('#preview').html();
+					vm_date.editedHtml = data.HtmlText;
+					$('#preview').html(vm_date.editedHtml);
+					$('textarea').froalaEditor('html.set', vm_date.editedHtml);
+				},
+				error: function(err) {
+					console.log("error:"+err);
+				}
+			})
+			return true;
+		}
+		// 메세지 데이타 업데이트
+		function updateBannerMsg() {
+			vm_date.editedHtml = $('#preview').html()
+			var n_align = vm_date.bannerMsg.alignment.charAt(0).toUpperCase() +  vm_date.bannerMsg.alignment.slice(1);
+			var $url = BASE_ROOT + "/message/update";
+			var $data = {
+				htmlText: vm_date.editedHtml
+			}
+			
+			$.ajax({
+				url: $url,
+				type: 'post',
+				data: $data,
+				success: function (data) {
+					$('.success').addClass('active');
+					setTimeout(function(){
+						$('.success').removeClass('active');
+						location.reload();
+					},2000);
+					
+				},
+				error: function(err) {
+					$('.error').addClass('active');
+					setTimeout(function () {
+						$('.error').removeClass('active');
+					}, 2000);
+				}
+			})
+		}
+
+		function toggleManual() {
+			var $target = $('.manual');
+			var hasOpen = $target.hasClass('open');
+
+			if(hasOpen) {
+				$target.removeClass('open');
+				$target.find('.title span').html("<i class='fa fa-caret-down'></i>");
+			} else {
+				$target.addClass('open');
+				$target.find('.title span').html("<i class='fa fa-caret-up'></i>");
+			}
+		}
+	</script>
+
+</body>
+</html>
